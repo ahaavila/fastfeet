@@ -1,9 +1,10 @@
 import { Router } from 'express';
 
+import userController from './app/controllers/userController';
+
 const routes = new Router();
 
-routes.get('/', (req, res) => {
-  res.json({ message: 'ok' });
-});
+// rotas para usuario
+routes.post('/users', userController.store);
 
 export default routes;
