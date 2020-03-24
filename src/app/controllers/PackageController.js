@@ -124,8 +124,57 @@ class PackageController {
     return res.json(packages);
   }
 
+  /**
+   * Atualizando Pacotes
+   */
   async update(req, res) {
-    return res.json();
+    // validando os campos do update
+    const schema = Yup.object().shape({
+      recipient_id: Yup.number(),
+      deliveryman_id: Yup.number(),
+      product: Yup.string(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails.' });
+    }
+    // fim validação
+
+    const { recipient_id, deliveryman_id } = req.body;
+
+    // Checando se existe o destinatário
+    const checkRecipientExists = await Recipient.findOne({
+      where: {
+        id: recipient_id,
+      },
+    });
+
+    if (!checkRecipientExists) {
+      return res.status(400).json({ error: 'Recipient does not exists' });
+    }
+    // Fim
+
+    // Checando se existe o Entregador
+    const checkDeliverymanExists = await Deliveryman.findOne({
+      where: {
+        id: deliveryman_id,
+      },
+    });
+
+    if (!checkDeliverymanExists) {
+      return res.status(400).json({ error: 'Deliveryman does not exists' });
+    }
+    // Fim
+
+    const packages = await Package.findByPk(req.params.id);
+
+    if (!packages) {
+      return res.status(400).json({ error: 'Package not found' });
+    }
+
+    const packag = await packages.update(req.body);
+
+    return res.json(packag);
   }
 
   async destroy(req, res) {
